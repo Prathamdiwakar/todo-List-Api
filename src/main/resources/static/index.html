@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Todo App</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+        input {
+            padding: 8px;
+        }
+        button {
+            padding: 6px;
+            margin-left: 5px;
+        }
+        li {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Todo List</h2>
+
+<input type="text" id="taskInput" placeholder="Enter task">
+<button onclick="addTask()">Add</button>
+
+<ul id="todoList"></ul>
+
+<script>
+    const API_URL = "http://localhost:8080/todos";
+
+    // LOAD ALL TASKS (READ)
+    async function loadTasks() {
+        const response = await fetch(API_URL);
+        const tasks = await response.json();
+
+        const list = document.getElementById("todoList");
+        list.innerHTML = "";
+
+        tasks.forEach(task => {
+            const li = document.createElement("li");
+
+            li.innerHTML = `
+                <span id="text-${task.id}">${task.tasks}</span>
+                <button onclick="enableEdit(${task.id})">✏️</button>
+                <button onclick="deleteTask(${task.id})">❌</button>
+            `;
+
+            list.appendChild(li);
+        });
+    }
+
+    // CREATE
+    async function addTask() {
+        const input = document.getElementById("taskInput");
+        const taskText = input.value;
+
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tasks: taskText })
+        });
+
+        input.value = "";
+        loadTasks();
+    }
+
+    // DELETE
+    async function deleteTask(id) {
+        await fetch(`${API_URL}/${id}`, {
+            method: "DELETE"
+        });
+        loadTasks();
+    }
+
+    // ENABLE EDIT MODE
+    function enableEdit(id) {
+        const span = document.getElementById(`text-${id}`);
+        const currentText = span.innerText;
+
+        span.innerHTML = `
+            <input id="edit-${id}" value="${currentText}">
+            <button onclick="updateTask(${id})">Save</button>
+        `;
+    }
+
+    // UPDATE
+    async function updateTask(id) {
+        const newText = document.getElementById(`edit-${id}`).value;
+
+        await fetch(`${API_URL}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tasks: newText })
+        });
+
+        loadTasks();
+    }
+
+    // INITIAL LOAD
+    loadTasks();
+</script>
+
+</body>
+</html>
