@@ -1,17 +1,17 @@
 package com.app.todoList.Service;
 
-import com.app.todoList.model.userTodo;
+import com.app.todoList.payload.TodoDTO;
+import jakarta.validation.Valid;
 
 import java.util.List;
-import java.util.Objects;
 
 public interface TodoService {
 
-    userTodo createUserTodo(userTodo userTasks);
+    TodoDTO createUserTodo(@Valid TodoDTO userTasks);
 
-    List<userTodo> listALlUserTodo();
+    List<TodoDTO> listALlUserTodo();
 
-    userTodo UpdateALlUserTask(Long id, userTodo updatedTask);
+    TodoDTO UpdateALlUserTask(Long id, TodoDTO updatedTask);
 
-    userTodo deleteUserTask(Long id);
+    TodoDTO deleteUserTask(Long id);
 }
